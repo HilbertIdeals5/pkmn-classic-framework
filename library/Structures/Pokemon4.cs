@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using PkmnFoundations.Pokedex;
 using PkmnFoundations.Support;
+using PkmnFoundations.Wfc;
 
 namespace PkmnFoundations.Structures
 {
@@ -333,6 +334,11 @@ namespace PkmnFoundations.Structures
             {
                 return new ValidationSummary() { IsValid = false }; // form not in pokedex
             }
+            // todo: Hardcoded checks don't belong here, but in the database.
+            // We need a Form.Generation and Form.CompatibleGeneration field
+            // to denote which generation a form was introduced in, and which
+            // generation it's broadly compatible with for trading.
+            //if (thePokemon.Form.CompatibleGeneration > Generations.Generation4) return new ValidationSummary() { IsValid = false };
             if (thePokemon.SpeciesID == 479 && thePokemon.FormID != 0) return new ValidationSummary() { IsValid = false }; // rotoms
             if (thePokemon.SpeciesID == 487 && thePokemon.FormID != 0) return new ValidationSummary() { IsValid = false }; // origin giratina
             if (thePokemon.SpeciesID == 492 && thePokemon.FormID != 0) return new ValidationSummary() { IsValid = false }; // sky shaymin
@@ -358,6 +364,18 @@ namespace PkmnFoundations.Structures
                 if (move.MoveID < 0) return new ValidationSummary() { IsValid = false };
                 if (move.MoveID == 165) return new ValidationSummary() { IsValid = false }; // struggle
                 if (move.MoveID > 467) return new ValidationSummary() { IsValid = false };
+            }
+
+            if (thePokemon is Pokemon4)
+            {
+                var thePokemon4 = (Pokemon4)thePokemon;
+                if (!thePokemon4.NicknameEncoded.IsValid) return new ValidationSummary() { IsValid = false };
+                if (!thePokemon4.TrainerNameEncoded.IsValid) return new ValidationSummary() { IsValid = false };
+            }
+            else if (thePokemon is BattleTowerPokemon4)
+            {
+                var theBattleTowerPokemon4 = (BattleTowerPokemon4)thePokemon;
+                if (!theBattleTowerPokemon4.NicknameEncoded.IsValid) return new ValidationSummary() { IsValid = false };
             }
 
             return new ValidationSummary() { IsValid = true };
